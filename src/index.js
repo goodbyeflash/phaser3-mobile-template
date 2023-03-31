@@ -1,30 +1,40 @@
 import Phaser from 'phaser';
 import logoImg from './assets/image/logo.png';
-import OpenSansFont from './assets/font/OpenSans.ttf';
+import fontUrl from './assets/font/Dohyun.ttf';
+import Preload from './script/preload';
+import Main from './script/main';
 
-class MyGame extends Phaser.Scene {
-  constructor() {
-    super();
-    this.centerX = null;
-    this.centerY = null;
-  }
+window.addEventListener('load', () => {
+  const config = {
+    type: Phaser.AUTO,
+    parent: 'phaser-game',
+    backgroundColor: '#242424',
+    scale: {
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+      width: 720,
+      height: 1280,
+    },
+    physics: {
+      default: 'arcade',
+      arcade: {
+        debug: false,
+      },
+    },
+  };
+  const game = new Phaser.Game(config);
+  game.scene.add('Preload', Preload);
+  game.scene.add('Main', Main);
+  game.scene.add('Boot', Boot, true);
 
+  loadFont('Dohyun', fontUrl);
+});
+
+class Boot extends Phaser.Scene {
   preload() {
-    this.centerX = this.cameras.main.width / 2;
-    this.centerY = this.cameras.main.height / 2;
     this.load.image('logo', logoImg);
-  }
-
-  create() {
-    const logo = this.add.image(this.centerX, this.centerY, 'logo');
-    this.add.text(0, 0, 'Template', { fontFamily: 'Open Sans' });
-    this.tweens.add({
-      targets: logo,
-      y: this.centerY + 100,
-      duration: 2000,
-      ease: 'Power2',
-      yoyo: true,
-      loop: -1,
+    this.load.on(Phaser.Loader.Events.COMPLETE, () => {
+      this.scene.start('Preload');
     });
   }
 }
@@ -40,19 +50,3 @@ const loadFont = (name, url) => {
       return error;
     });
 };
-
-loadFont('Open Sans', OpenSansFont);
-
-const config = {
-  type: Phaser.AUTO,
-  scene: MyGame,
-  parent: 'phaser-game',
-  scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 1280,
-    height: 720,
-  },
-};
-
-const game = new Phaser.Game(config);
